@@ -1,36 +1,20 @@
 class Solution:
     def longestPalindrome(self, s: str) -> str:
-        n = len(s)
-        if n == 0:
-            return ""
-    
-    # Create a DP table to store the palindromic status
-        dp = [[False] * n for _ in range(n)]
-    
-        start = 0
-        max_length = 1
-    
-    # Every single character is a palindrome
-        for i in range(n):
-            dp[i][i] = True
-    
-    # Check for palindromes of length 2
-        for i in range(n - 1):
-            if s[i] == s[i + 1]:
-                dp[i][i + 1] = True
-                start = i
-                max_length = 2
-    
-    # Check for palindromes of length greater than 2
-        for length in range(3, n + 1):
-            for i in range(n - length + 1):
-                j = i + length - 1  # Ending index of the current substring
-            
-            # Check if the current substring is a palindrome
-                if s[i] == s[j] and dp[i + 1][j - 1]:
-                    dp[i][j] = True
-                    start = i
-                    max_length = length
-    
-    # Return the longest palindromic substring
-        return s[start:start + max_length]
+        T = '#'.join(f'^{s}$')
+        n = len(T)
+        P = [0] * n
+        C = R = 0
+
+        for i in range(1, n - 1):
+            P[i] = (R > i) and min(R - i, P[2 * C - i])  # Use previously computed values if within bounds
+            while T[i + P[i] + 1] == T[i - P[i] - 1]:
+                P[i] += 1
+
+            if i + P[i] > R:
+                C, R = i, i + P[i]
+
+    # Find the maximum element in P
+        max_len, center_index = max((n, i) for i, n in enumerate(P))
+        start = (center_index - max_len) // 2  # Map back to the original string
+
+        return s[start:start + max_len]
